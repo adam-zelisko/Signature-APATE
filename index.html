@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Signature interactive HTML</title>
+    <style>
+        body {
+            font-family: 'Montserrat', Arial, sans-serif;
+            padding: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            display: block;
+            margin-top: 10px;
+        }
+
+        input,
+        select {
+            padding: 4px 8px;
+            margin-top: 4px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 6px 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* titre de la signature (Très cordialement) */
+        #titre {
+            font-size: 17px;
+            margin-bottom: 0;
+        }
+
+        #signature {
+            margin-top: 30px;
+            width: 900px;
+            background-color: white;
+        }
+
+        #signature img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+    <h3 id="titre">Générateur de signature</h3>
+
+    <form id="formulaire">
+        <label for="etablissement">Établissement :</label>
+        <select id="etablissement">
+            <option value="1">La caverne d'AliBaba</option>
+            <option value="2">Baloo</option>
+            <option value="3">Mowgli</option>
+            <option value="4">La maison Dagobert</option>
+            <option value="5">Le sourire du chat</option>
+            <option value="6">Gulliver</option>
+            <option value="7">Le chat perché</option>
+            <option value="8">Le poisson d'or</option>
+            <option value="9">L'Île aux enfants</option>
+            <option value="30">Siège (APATE)</option>
+            <option value="31">Flexible</option>
+        </select>
+
+        <label for="nom">Nom :</label>
+        <input type="text" id="nom" required>
+
+        <label for="prenom">Prénom :</label>
+        <input type="text" id="prenom" required>
+
+        <label for="statut">Statut :</label>
+        <input type="text" id="statut" required>
+
+        <label for="telephone">Téléphone 1 :</label>
+        <input type="text" id="telephone" required placeholder="06 12 34 56 78">
+
+        <label for="telephone2">Téléphone 2 :</label>
+        <input type="text" id="telephone2" placeholder="Optionnel">
+
+        <button type="button" onclick="genererSignature()">Générer la signature</button>
+    </form>
+
+    <div id="signature"></div>
+
+    <script>
+        const logos = {
+            1: { src: "images/La caverne d'Ali Baba.png", adresse: "27/29 avenue Philippe Auguste, 75011 Paris" },
+            2: { src: "images/Baloo.png", adresse: "6, rue Pajol, 75018 Paris" },
+            3: { src: "images/Mowgli.png", adresse: "10, rue Dieu, 75010 Paris" },
+            4: { src: "images/MaisonDagobert.png", adresse: "26, rue Erard, 75012 Paris" },
+            5: { src: "images/Le Sourire Du Chat.png", adresse: "9, avenue Sainte Eugénie, 75015 Paris" },
+            6: { src: "images/Gulliver.png", adresse: "59/61, rue des Pirogues de Bercy, 75012 Paris" },
+            7: { src: "images/Lechatperche.png", adresse: "à venir" },
+            8: { src: "images/LePoissonChat.png", adresse: "2 rue Vanloo, 75016 Paris" },
+            9: { src: "images/IleAuxEnfants.png", adresse: "42, rue Orfila, 75020 Paris" },
+            30: { src: "", adresse: "27/29 avenue Philippe Auguste, 75011 Paris" },
+            31: { src: "", adresse: "" }
+        };
+        const logoBleu = "images/LogoCouleur.png";
+        const logoCouleur = "images/LogoCouleur.png";
+
+        function formatNumero(raw) {
+            // Garde que les chiffres, puis groupe par 2 et joint par un point
+            const chiffres = raw.replace(/\D/g, '');
+            return chiffres.match(/.{1,2}/g)?.join('.') || '';
+        }
+
+        function genererSignature() {
+            document.getElementById("formulaire").style.display = "none";
+            document.getElementById("titre").innerText = "Très cordialement,";
+
+            const choix = parseInt(document.getElementById("etablissement").value, 10);
+            const nom = document.getElementById("nom").value.toUpperCase();
+            const prenom = document.getElementById("prenom").value;
+            const statut = document.getElementById("statut").value;
+
+            // Mise en forme des deux numéros
+            const tel1 = formatNumero(document.getElementById("telephone").value);
+            const tel2 = formatNumero(document.getElementById("telephone2").value);
+            const telephone = tel2
+                ? `${tel1} / ${tel2}`
+                : tel1;
+
+            const isSiege = choix === 30;
+            const isFlexible = choix === 31;
+            const leftWidth = (isSiege || isFlexible) ? 200 : 280;
+            const midWidth = 40;
+            const rightWidth = 900 - leftWidth - midWidth;
+            const logoApate = (isSiege || isFlexible) ? logoCouleur : logoBleu;
+            const apateWidth = (isSiege || isFlexible) ? "100px" : "80px";
+            const etabWidth = (choix === 1 || choix === 5) ? "120px" : (choix === 9 ? "120px" : "100px");
+            const logoEtab = logos[choix];
+            const adresse = logoEtab.adresse;
+
+            const signatureTable = `
+                <table cellpadding="0" cellspacing="0"
+                       style="width:900px; font-family:'Montserrat',Arial,sans-serif; border-collapse:collapse; background-color:white;">
+                    <tr>
+                        <td style="width:${leftWidth}px; text-align:center; padding:8px 2px; vertical-align: middle;">
+                            <div style="display:inline-flex; align-items:center; justify-content:center; gap:10px; height:100%;">
+                                <img src="${logoApate}" alt="Logo APATE" style="width:${apateWidth};">
+                                ${(!isSiege && !isFlexible)
+                    ? `<span style="display:inline-block; width:1px; height:60px; background-color:#000;"></span>
+                                     <img src="${logoEtab.src}" alt="Logo établissement" style="width:${etabWidth};">`
+                    : ``}
+                            </div>
+                        </td>
+                        <td style="width:${midWidth}px; padding:0; vertical-align:middle;">
+                            <img src="images/forme.png" alt="Décor vertical" style="width:100%; height:180px; display:block;">
+                        </td>
+                        <td style="width:${rightWidth}px; padding:14px; vertical-align:middle;">
+                            <table cellpadding="0" cellspacing="0" style="width:100%; border-collapse:collapse;">
+                                <tr><td style="font-size:14px; font-weight:600; color:#000;">${nom} ${prenom}</td></tr>
+                                <tr><td style="font-size:12px; font-weight:300; color:#000; padding-top:6px;">${statut}</td></tr>
+                                <tr><td><hr style="width:50px; border:none; border-top:1px solid gray; margin:8px 0;"></td></tr>
+                                <tr>
+                                  <td style="padding-top:6px;">
+                                    <div style="display:inline-flex; align-items:center; font-size:11px;">
+                                      <img src="images/IconTelephoneNoir.png" style="width:12px; margin-right:4px;">
+                                      ${telephone}
+                                    </div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td style="padding-top:6px;">
+                                    <div style="display:inline-flex; align-items:center; font-size:11px;">
+                                      <img src="images/IconInternetNoir.png" style="width:12px; margin-right:4px;">
+                                      <a href="https://www.apate.fr" style="color:black; text-decoration:none; font-size:11px;">www.apate.fr</a>
+                                    </div>
+                                  </td>
+                                </tr>
+                                ${adresse
+                    ? `<tr>
+                          <td style="padding-top:6px;">
+                            <div style="display:inline-flex; align-items:center; font-size:11px;">
+                              <img src="images/IconEpingleNoir.png" style="width:12px; margin-right:4px;">
+                              <span>${adresse}</span>
+                            </div>
+                          </td>
+                       </tr>`
+                    : ``}
+                            </table>
+                        </td>
+                    </tr>
+                </table>`;
+
+            const container = document.getElementById('signature');
+            container.innerHTML = signatureTable;
+
+            html2canvas(container, {
+                scale: (window.devicePixelRatio || 2) * 2,
+                useCORS: true,
+                allowTaint: false,
+                backgroundColor: '#ffffff'
+            }).then(canvas => {
+                const fullW = canvas.width;
+                const cropW = Math.round(fullW * 2 / 3);
+                const H = canvas.height;
+                const tmp = document.createElement('canvas');
+                tmp.width = cropW; tmp.height = H;
+                tmp.getContext('2d').drawImage(canvas, 0, 0, cropW, H, 0, 0, cropW, H);
+
+                container.innerHTML = `
+                    <a id="sigLink" href="https://www.apate.fr" target="_blank"
+                       style="display:inline-block; text-decoration:none;">
+                        <img id="sigImg" src="${tmp.toDataURL('image/png')}"
+                             alt="Signature PNG"
+                             style="border:1px solid #000; width:80%; height:auto;">
+                    </a>`;
+
+                // Effet « clic pour agrandir » uniquement pour l'établissement n°5
+                if (choix === 5) {
+                    const link = document.getElementById('sigLink');
+                    const img = document.getElementById('sigImg');
+                    link.removeAttribute('href');
+                    link.style.cursor = 'pointer';
+                    link.addEventListener('click', e => {
+                        e.preventDefault();
+                        img.style.width = '100%';
+                    });
+                }
+            });
+            
+        }
+    </script>
+
+</body>
+
+</html>
